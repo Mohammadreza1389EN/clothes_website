@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>افزودن کالا | پوشاکچی</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="index.html" class="logo"><span class="dot"></span> پوشاکچی</a>
+    <span style="font-size:13px;color:var(--muted);font-weight:600;">پنل افزودن کالا</span>
+    <a href="index.html" class="btn btn-outline" style="padding:9px 16px">بازگشت به فروشگاه</a>
+  </div>
+</header>
+
+<div class="admin-wrap">
+  <div class="admin-header">
+    <h1>افزودن کالای جدید</h1>
+    <p>کالاها مستقیم روی بک‌اند (Cloudflare Worker) ذخیره می‌شوند و بلافاصله برای همه‌ی بازدیدکننده‌ها در فروشگاه نمایش داده می‌شوند.</p>
+  </div>
+
+  <!-- ورود با کلید ادمین -->
+  <div class="panel" id="loginPanel">
+    <h3>ورود به پنل</h3>
+    <div class="form-grid">
+      <div class="form-field full">
+        <label>کلید ادمین (همان مقداری که با wrangler secret put ADMIN_KEY ست کردی)</label>
+        <input type="password" id="adminKeyInput" placeholder="کلید ادمین را وارد کن">
+      </div>
+    </div>
+    <div style="text-align:left;margin-top:12px">
+      <button class="btn btn-primary" onclick="loginAdmin()">ورود</button>
+    </div>
+    <p id="loginError" style="color:var(--danger);font-size:12.5px;margin-top:8px;display:none">کلید نادرست است یا بک‌اند در دسترس نیست.</p>
+  </div>
+
+  <!-- محتوای پنل (بعد از ورود) -->
+  <div id="adminContent" style="display:none">
+    <div class="note-box">
+      کالاهایی که اینجا اضافه می‌کنی مستقیم روی بک‌اند ذخیره می‌شوند (نه فقط روی این مرورگر) — یعنی برای همه‌ی
+      بازدیدکننده‌های سایت، روی هر دستگاهی، بلافاصله قابل مشاهده‌اند.
+    </div>
+
+    <form id="productForm">
+      <div class="form-grid">
+        <div class="form-field full">
+          <label>نام کالا</label>
+          <input type="text" id="pName" placeholder="مثلاً پیراهن دخترانه گلدار" required>
+        </div>
+
+        <div class="form-field">
+          <label>دسته‌بندی</label>
+          <select id="pCategory" required>
+            <option value="boy-kids">پسرانه کودک</option>
+            <option value="boy-adult">پسرانه بزرگسال</option>
+            <option value="girl-kids">دخترانه کودک</option>
+            <option value="girl-adult">دخترانه بزرگسال</option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label>قیمت (تومان)</label>
+          <input type="number" id="pPrice" min="0" step="1000" placeholder="مثلاً 450000" required>
+        </div>
+
+        <div class="form-field">
+          <label>سایزها (با کاما جدا کنید)</label>
+          <input type="text" id="pSizes" placeholder="مثلاً S, M, L یا 4-5 سال, 6-7 سال">
+        </div>
+        <div class="form-field">
+          <label>رنگ‌ها (با کاما جدا کنید)</label>
+          <input type="text" id="pColors" placeholder="مثلاً صورتی, سفید">
+        </div>
+
+        <div class="form-field full">
+          <label>توضیحات</label>
+          <textarea id="pDesc" placeholder="توضیح کوتاه درباره پارچه، برش و کاربرد"></textarea>
+        </div>
+
+        <div class="form-field full">
+          <label>موجودی</label>
+          <select id="pStock">
+            <option value="true">موجود</option>
+            <option value="false">ناموجود</option>
+          </select>
+        </div>
+
+        <div class="form-field full">
+          <label>تصاویر کالا</label>
+          <label class="img-drop" for="pImages">برای انتخاب یک یا چند عکس کلیک کنید</label>
+          <input type="file" id="pImages" accept="image/*" multiple style="display:none">
+          <div class="img-preview-row" id="imgPreviewRow"></div>
+        </div>
+      </div>
+
+      <div style="text-align:left;margin-top:18px">
+        <button type="submit" class="btn btn-primary" id="submitBtn">افزودن کالا به فروشگاه</button>
+      </div>
+    </form>
+
+    <hr class="stitch" style="margin:34px 0">
+
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <h3 style="font-size:16px">کالاهای فعلی فروشگاه</h3>
+      <button class="btn btn-outline" onclick="renderTable()">بازخوانی لیست</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>نام</th><th>دسته</th><th>قیمت</th><th>موجودی</th><th></th></tr>
+        </thead>
+        <tbody id="productsTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/config.js"></script>
+<script src="js/app.js"></script>
+<script>
+const ADMIN_KEY_STORAGE = "storefa_admin_key";
+let selectedImages = []; // data URLs
+
+function adminKey(){
+  return sessionStorage.getItem(ADMIN_KEY_STORAGE) || "";
+}
+
+async function loginAdmin(){
+  const key = document.getElementById("adminKeyInput").value.trim();
+  if(!key){ showToast("کلید ادمین را وارد کن"); return; }
+
+  // یک درخواست آزمایشی (حذفِ یک آیدی الکی) برای سنجش صحت کلید بدون تغییر داده
+  try{
+    const res = await fetch(`${API_BASE}/api/products/__probe__`, {
+      method: "DELETE",
+      headers: { "x-admin-key": key }
+    });
+    if(res.status === 401){
+      document.getElementById("loginError").style.display = "block";
+      return;
+    }
+    // 401 یعنی کلید غلط. هر وضعیت دیگری (404 چون محصولی به این آیدی نیست) یعنی کلید درست است.
+    sessionStorage.setItem(ADMIN_KEY_STORAGE, key);
+    document.getElementById("loginPanel").style.display = "none";
+    document.getElementById("adminContent").style.display = "block";
+    renderTable();
+  }catch(e){
+    document.getElementById("loginError").textContent = "امکان اتصال به بک‌اند وجود ندارد. آدرس API_BASE در js/config.js را چک کن.";
+    document.getElementById("loginError").style.display = "block";
+  }
+}
+
+document.getElementById("pImages").addEventListener("change", (e)=>{
+  const files = Array.from(e.target.files);
+  files.forEach(file=>{
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      selectedImages.push(reader.result);
+      renderImgPreview();
+    };
+    reader.readAsDataURL(file);
+  });
+});
+
+function renderImgPreview(){
+  const row = document.getElementById("imgPreviewRow");
+  row.innerHTML = selectedImages.map((src,i)=>`
+    <div class="img-preview">
+      <img src="${src}">
+      <button type="button" onclick="removeImg(${i})">×</button>
+    </div>`).join("");
+}
+function removeImg(i){
+  selectedImages.splice(i,1);
+  renderImgPreview();
+}
+
+document.getElementById("productForm").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const name = document.getElementById("pName").value.trim();
+  const category = document.getElementById("pCategory").value;
+  const price = parseInt(document.getElementById("pPrice").value, 10);
+  const description = document.getElementById("pDesc").value.trim();
+  const sizes = document.getElementById("pSizes").value.split(",").map(s=>s.trim()).filter(Boolean);
+  const colors = document.getElementById("pColors").value.split(",").map(s=>s.trim()).filter(Boolean);
+  const stock = document.getElementById("pStock").value === "true";
+
+  if(!name || !category || !price){
+    showToast("لطفاً فیلدهای الزامی را پر کنید");
+    return;
+  }
+  if(selectedImages.length === 0){
+    showToast("حداقل یک تصویر برای کالا انتخاب کنید");
+    return;
+  }
+
+  const btn = document.getElementById("submitBtn");
+  btn.disabled = true;
+  btn.textContent = "در حال ارسال به بک‌اند...";
+
+  try{
+    const res = await fetch(`${API_BASE}/api/products`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-admin-key": adminKey() },
+      body: JSON.stringify({ name, description, category, price, images: selectedImages, sizes, colors, stock })
+    });
+    const data = await res.json();
+    if(!data.ok){
+      showToast(data.error || "خطا در ثبت کالا");
+    }else{
+      showToast("کالا با موفقیت اضافه شد ✅");
+      document.getElementById("productForm").reset();
+      selectedImages = [];
+      renderImgPreview();
+      renderTable();
+    }
+  }catch(err){
+    showToast("امکان اتصال به بک‌اند وجود ندارد");
+  }finally{
+    btn.disabled = false;
+    btn.textContent = "افزودن کالا به فروشگاه";
+  }
+});
+
+async function renderTable(){
+  invalidateProductsCache(); // پنل ادمین همیشه باید آخرین وضعیت واقعی را نشان بدهد
+  const all = await loadAllProducts();
+  const CAT_LABELS = {
+    "boy-kids": "پسرانه کودک","boy-adult": "پسرانه بزرگسال",
+    "girl-kids": "دخترانه کودک","girl-adult": "دخترانه بزرگسال"
+  };
+  const body = document.getElementById("productsTableBody");
+  if(all.length === 0){
+    body.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--muted)">هنوز کالایی ثبت نشده</td></tr>`;
+    return;
+  }
+  body.innerHTML = all.map(p=>`
+    <tr>
+      <td>${p.name}</td>
+      <td>${CAT_LABELS[p.category]||p.category}</td>
+      <td>${formatPrice(p.price)}</td>
+      <td><span class="pill-tiny">${p.stock ? "موجود" : "ناموجود"}</span></td>
+      <td><button class="del-row" onclick="deleteProduct('${p.id}')">حذف</button></td>
+    </tr>`).join("");
+}
+
+async function deleteProduct(id){
+  if(!confirm("این کالا حذف شود؟")) return;
+  try{
+    const res = await fetch(`${API_BASE}/api/products/${id}`, {
+      method: "DELETE",
+      headers: { "x-admin-key": adminKey() }
+    });
+    const data = await res.json();
+    if(!data.ok){
+      showToast(data.error || "خطا در حذف کالا");
+      return;
+    }
+    showToast("کالا حذف شد");
+    renderTable();
+  }catch(e){
+    showToast("امکان اتصال به بک‌اند وجود ندارد");
+  }
+}
+
+// اگر قبلاً وارد شده (همین تب مرورگر)، مستقیم پنل را نشان بده
+if(adminKey()){
+  document.getElementById("loginPanel").style.display = "none";
+  document.getElementById("adminContent").style.display = "block";
+  renderTable();
+}
+</script>
+</body>
+</html>

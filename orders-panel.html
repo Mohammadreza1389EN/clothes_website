@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>پنل سفارش‌های پوشاکچی</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#12141c;
+    --panel:#1a1d29;
+    --panel-2:#20243350;
+    --line:#2a2f42;
+    --text:#eceef3;
+    --muted:#8c92a8;
+    --accent:#e8a53d;
+    --accent-dim:#e8a53d22;
+    --good:#4fa87a;
+    --good-dim:#4fa87a22;
+    --bad:#d9584f;
+    --bad-dim:#d9584f22;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 50% -10%, #23283a 0%, transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Vazirmatn', sans-serif;
+    min-height:100vh;
+    padding:28px 16px 60px;
+  }
+  .mono{font-family:'IBM Plex Mono', monospace;}
+  .wrap{max-width:760px;margin:0 auto;}
+
+  /* ---------- header ---------- */
+  header{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:12px; margin-bottom:22px; flex-wrap:wrap;
+  }
+  .brand{display:flex; align-items:center; gap:10px;}
+  .brand svg{width:30px; height:30px; flex-shrink:0;}
+  .brand h1{font-size:19px; font-weight:800; margin:0; letter-spacing:-.2px;}
+  .brand p{margin:0; font-size:12px; color:var(--muted);}
+
+  .status-pill{
+    display:flex; align-items:center; gap:7px;
+    background:var(--panel); border:1px solid var(--line);
+    padding:7px 14px; border-radius:999px; font-size:12.5px; font-weight:500;
+    color:var(--muted);
+  }
+  .dot{width:8px; height:8px; border-radius:50%; background:var(--muted); transition:background .3s;}
+  .status-pill.ok .dot{background:var(--good); box-shadow:0 0 0 4px var(--good-dim);}
+  .status-pill.err .dot{background:var(--bad); box-shadow:0 0 0 4px var(--bad-dim);}
+  .status-pill.wait .dot{background:var(--accent); box-shadow:0 0 0 4px var(--accent-dim); animation:pulse 1.4s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+
+  /* ---------- settings bar ---------- */
+  .settings{
+    background:var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding:14px 16px; margin-bottom:22px;
+    display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+  }
+  .settings label{font-size:12.5px; color:var(--muted); white-space:nowrap;}
+  .settings input[type=text]{
+    flex:1; min-width:220px; background:#0f111a; border:1px solid var(--line);
+    color:var(--text); padding:9px 12px; border-radius:9px; font-size:13px;
+    font-family:'IBM Plex Mono', monospace; direction:ltr; text-align:left;
+  }
+  .settings input[type=text]:focus{outline:none; border-color:var(--accent);}
+  button{
+    font-family:'Vazirmatn', sans-serif; cursor:pointer; border:none;
+    border-radius:9px; padding:9px 16px; font-size:13px; font-weight:600;
+    transition:transform .15s, opacity .15s;
+  }
+  button:active{transform:scale(.96);}
+  .btn-primary{background:var(--accent); color:#1a1305;}
+  .btn-ghost{background:transparent; border:1px solid var(--line); color:var(--text);}
+  .btn-ghost.on{border-color:var(--good); color:var(--good); background:var(--good-dim);}
+
+  /* ---------- hero: latest order ---------- */
+  .hero{
+    position:relative; background:var(--panel); border:1px solid var(--line);
+    border-radius:20px; padding:30px 26px 26px; margin-bottom:22px; overflow:hidden;
+  }
+  .stitch-svg{position:absolute; inset:0; width:100%; height:100%; opacity:.5; pointer-events:none;}
+  .stitch-path{
+    fill:none; stroke:var(--accent); stroke-width:1.5; stroke-dasharray:6 7;
+    stroke-linecap:round; opacity:.35;
+  }
+  .stitch-path.flash{
+    animation:stitchIn 1.1s ease-out;
+  }
+  @keyframes stitchIn{
+    0%{stroke-dashoffset:900; opacity:0;}
+    15%{opacity:.9;}
+    100%{stroke-dashoffset:0; opacity:.35;}
+  }
+  .hero-top{display:flex; align-items:center; justify-content:space-between; position:relative; z-index:1;}
+  .eyebrow{font-size:11.5px; color:var(--accent); font-weight:700; letter-spacing:.4px;}
+  .hero-time{font-size:11.5px; color:var(--muted);}
+  .hero-body{
+    position:relative; z-index:1; margin-top:16px; font-size:15px; line-height:2.05;
+    white-space:pre-wrap; color:var(--text);
+  }
+  .hero-body.empty{color:var(--muted); font-size:14px; text-align:center; padding:22px 0;}
+
+  /* ---------- history ---------- */
+  .section-title{font-size:13px; color:var(--muted); margin:0 0 10px 4px; font-weight:600;}
+  .history{display:flex; flex-direction:column; gap:9px;}
+  .history-item{
+    background:var(--panel); border:1px solid var(--line); border-radius:13px;
+    padding:13px 16px; font-size:13.5px; line-height:1.9; white-space:pre-wrap;
+    position:relative; padding-right:16px;
+  }
+  .history-item::before{
+    content:''; position:absolute; right:0; top:14px; bottom:14px; width:3px;
+    background:var(--accent); border-radius:3px; opacity:.5;
+  }
+  .history-time{display:block; color:var(--muted); font-size:11px; margin-top:6px;}
+  .empty-note{
+    text-align:center; color:var(--muted); font-size:13px; padding:26px 0;
+    border:1px dashed var(--line); border-radius:13px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <svg viewBox="0 0 24 24"><path d="M12 2L4 6v5c0 5 3.4 8.7 8 9 4.6-.3 8-4 8-9V6l-8-4z" fill="none" stroke="#e8a53d" stroke-width="1.6"/><path d="M8 12l2.5 2.5L16 9" fill="none" stroke="#e8a53d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div>
+        <h1>پنل سفارش‌های پوشاکچی</h1>
+        <p>رصد زنده‌ی سفارش‌های پرداخت‌شده</p>
+      </div>
+    </div>
+    <div class="status-pill wait" id="statusPill">
+      <span class="dot"></span><span id="statusText">در حال اتصال…</span>
+    </div>
+  </header>
+
+  <div class="settings">
+    <label for="baseUrl">آدرس سرور:</label>
+    <input type="text" id="baseUrl" placeholder="https://poshakchi-backend.workers.dev" value="https://poshakchi-backend.workers.dev">
+    <button class="btn-primary" id="applyBtn">اتصال</button>
+    <button class="btn-ghost" id="notifBtn">🔔 فعال‌سازی اعلان</button>
+    <button class="btn-ghost" id="soundBtn">🔈 صدا</button>
+  </div>
+
+  <div class="hero">
+    <svg class="stitch-svg" viewBox="0 0 700 220" preserveAspectRatio="none">
+      <path id="stitchPath" class="stitch-path" d="M-20,40 C120,10 220,90 360,50 S560,10 720,60"/>
+      <path id="stitchPath2" class="stitch-path" d="M-20,170 C140,200 260,120 400,160 S600,210 720,150"/>
+    </svg>
+    <div class="hero-top">
+      <span class="eyebrow">آخرین سفارش</span>
+      <span class="hero-time" id="lastUpdated">—</span>
+    </div>
+    <div class="hero-body empty" id="latestBody">هنوز سفارشی دریافت نشده است</div>
+  </div>
+
+  <p class="section-title">سفارش‌های پیشین این نشست</p>
+  <div class="history" id="historyList">
+    <div class="empty-note">با رسیدن سفارش جدید، اینجا نمایش داده می‌شود</div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  const POLL_MS = 3000;
+  let baseUrl = document.getElementById('baseUrl').value.replace(/\/$/, '');
+  let lastMessage = null;
+  let soundOn = false;
+  let timer = null;
+
+  const el = {
+    pill: document.getElementById('statusPill'),
+    pillText: document.getElementById('statusText'),
+    latestBody: document.getElementById('latestBody'),
+    lastUpdated: document.getElementById('lastUpdated'),
+    history: document.getElementById('historyList'),
+    applyBtn: document.getElementById('applyBtn'),
+    baseUrlInput: document.getElementById('baseUrl'),
+    notifBtn: document.getElementById('notifBtn'),
+    soundBtn: document.getElementById('soundBtn'),
+    stitch1: document.getElementById('stitchPath'),
+    stitch2: document.getElementById('stitchPath2'),
+  };
+
+  function setStatus(kind, text){
+    el.pill.className = 'status-pill ' + kind;
+    el.pillText.textContent = text;
+  }
+
+  function timeNow(){
+    return new Date().toLocaleTimeString('fa-IR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+  }
+
+  function playBeep(){
+    try{
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.frequency.value = 880;
+      osc.connect(gain); gain.connect(ctx.destination);
+      gain.gain.setValueAtTime(0.001, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.15, ctx.currentTime + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+      osc.start(); osc.stop(ctx.currentTime + 0.4);
+    }catch(e){}
+  }
+
+  function fireStitchAnimation(){
+    [el.stitch1, el.stitch2].forEach(p => {
+      p.classList.remove('flash');
+      void p.offsetWidth; // ری‌استارت انیمیشن
+      p.classList.add('flash');
+    });
+  }
+
+  function addToHistory(message, time){
+    const empty = el.history.querySelector('.empty-note');
+    if (empty) empty.remove();
+    const item = document.createElement('div');
+    item.className = 'history-item';
+    item.innerHTML = escapeHtml(message) + '<span class="history-time">' + time + '</span>';
+    el.history.prepend(item);
+    // حداکثر ۲۰ مورد نگه داشته می‌شود
+    while (el.history.children.length > 20) el.history.removeChild(el.history.lastChild);
+  }
+
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function handleNewMessage(message){
+    const t = timeNow();
+    el.latestBody.textContent = message;
+    el.latestBody.classList.remove('empty');
+    el.lastUpdated.textContent = 'به‌روزرسانی: ' + t;
+    fireStitchAnimation();
+
+    if (lastMessage !== null){
+      addToHistory(message, t);
+      if (Notification.permission === 'granted'){
+        const n = new Notification('سفارش جدید در پوشاکچی', {
+          body: message.split('\n')[0] || message,
+          icon: undefined,
+        });
+        n.onclick = () => window.focus();
+      }
+      if (soundOn) playBeep();
+    }
+    lastMessage = message;
+  }
+
+  async function pollOnce(){
+    try{
+      const res = await fetch(baseUrl + '/data', {cache:'no-store'});
+      if (!res.ok) throw new Error('server ' + res.status);
+      const data = await res.json();
+      const message = (data && data.message) ? String(data.message) : '';
+      setStatus('ok', 'متصل');
+      if (message && message !== lastMessage){
+        handleNewMessage(message);
+      }
+    }catch(err){
+      setStatus('err', 'اتصال برقرار نشد');
+    }
+  }
+
+  function startPolling(){
+    if (timer) clearInterval(timer);
+    lastMessage = null;
+    setStatus('wait', 'در حال اتصال…');
+    pollOnce();
+    timer = setInterval(pollOnce, POLL_MS);
+  }
+
+  el.applyBtn.addEventListener('click', () => {
+    const v = el.baseUrlInput.value.trim().replace(/\/$/, '');
+    if (!v) return;
+    const urlChanged = v !== baseUrl;
+    baseUrl = v;
+    if (urlChanged){
+      startPolling(); // آدرس واقعاً عوض شده، ریست کامل منطقی است
+    } else if (timer){
+      pollOnce(); // فقط یک تازه‌سازی دستی، بدون ریست وضعیت (تا سفارشِ قبلی دوباره «جدید» اعلام نشود)
+    } else {
+      startPolling();
+    }
+  });
+
+  el.notifBtn.addEventListener('click', async () => {
+    if (!('Notification' in window)){
+      alert('این مرورگر از اعلان پشتیبانی نمی‌کند');
+      return;
+    }
+    const perm = await Notification.requestPermission();
+    if (perm === 'granted'){
+      el.notifBtn.classList.add('on');
+      el.notifBtn.textContent = '🔔 اعلان فعال است';
+    } else {
+      el.notifBtn.textContent = '🔔 اجازه داده نشد';
+    }
+  });
+
+  el.soundBtn.addEventListener('click', () => {
+    soundOn = !soundOn;
+    el.soundBtn.classList.toggle('on', soundOn);
+    el.soundBtn.textContent = soundOn ? '🔊 صدا فعال' : '🔈 صدا';
+    if (soundOn) playBeep();
+  });
+
+  startPolling();
+})();
+</script>
+</body>
+</html>

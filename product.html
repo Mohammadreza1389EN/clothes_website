@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>جزئیات محصول | پوشاکچی</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <button class="icon-btn nav-toggle" onclick="toggleMobileNav()" aria-label="باز کردن منو">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <a href="index.html" class="logo"><span class="dot"></span> پوشاکچی</a>
+    <nav class="main-nav" id="mainNav">
+      <div class="nav-head">
+        <span>دسته‌بندی‌ها</span>
+        <button class="close-btn" onclick="closeNav()" aria-label="بستن منو">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <a href="index.html?cat=boy-kids" data-cat="boy-kids">پسرانه کودک</a>
+      <a href="index.html?cat=boy-adult" data-cat="boy-adult">پسرانه بزرگسال</a>
+      <a href="index.html?cat=girl-kids" data-cat="girl-kids">دخترانه کودک</a>
+      <a href="index.html?cat=girl-adult" data-cat="girl-adult">دخترانه بزرگسال</a>
+    </nav>
+    <div class="header-actions">
+      <button class="icon-btn" onclick="openCart()" aria-label="سبد خرید">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        <span class="cart-count" id="cartCount">0</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="breadcrumb" id="breadcrumb">
+    <a href="index.html">فروشگاه</a>
+  </div>
+
+  <div id="productRoot"></div>
+</div>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <span>© ۱۴۰۳ پوشاکچی — همه‌ی حقوق محفوظ است.</span>
+    <span>پشتیبانی: ۰۲۱-۰۰۰۰۰۰۰</span>
+  </div>
+</footer>
+
+<div class="overlay" id="overlay"></div>
+<aside class="cart-drawer" id="cartDrawer">
+  <div class="cart-head">
+    <h3>سبد خرید</h3>
+    <button class="close-btn" onclick="closeCart()">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-foot" id="cartFoot" style="display:none">
+    <div class="cart-total-row"><span>جمع کل</span><span id="cartTotal">۰ تومان</span></div>
+    <a href="checkout.html" class="btn btn-primary btn-block">ادامه فرآیند خرید</a>
+  </div>
+</aside>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/config.js"></script>
+<script src="js/app.js"></script>
+<script>
+const CAT_LABELS = {
+  "boy-kids": "پسرانه کودک",
+  "boy-adult": "پسرانه بزرگسال",
+  "girl-kids": "دخترانه کودک",
+  "girl-adult": "دخترانه بزرگسال"
+};
+
+let currentProduct = null;
+let selectedSize = null;
+let selectedColor = null;
+let activeImgIndex = 0;
+
+function getIdFromUrl(){
+  return new URLSearchParams(location.search).get("id");
+}
+
+function renderNotFound(){
+  document.getElementById("productRoot").innerHTML = `
+    <div class="empty-state">
+      <h2>محصول پیدا نشد</h2>
+      <p style="margin-top:10px">این کالا وجود ندارد یا حذف شده است.</p>
+      <a href="index.html" class="btn btn-primary" style="margin-top:20px">بازگشت به فروشگاه</a>
+    </div>`;
+}
+
+function renderProduct(p){
+  document.title = p.name + " | پوشاکچی";
+  document.getElementById("breadcrumb").innerHTML =
+    `<a href="index.html">فروشگاه</a> / <a href="index.html?cat=${p.category}">${CAT_LABELS[p.category]||""}</a> / <span>${p.name}</span>`;
+
+  selectedSize = p.sizes && p.sizes[0] ? p.sizes[0] : null;
+  selectedColor = p.colors && p.colors[0] ? p.colors[0] : null;
+  activeImgIndex = 0;
+
+  const images = (p.images && p.images.length) ? p.images : [""];
+
+  document.getElementById("productRoot").innerHTML = `
+  <div class="product-detail">
+    <div>
+      <div class="gallery-main"><img id="mainImg" src="${images[0]}" alt="${p.name}"></div>
+      ${images.length>1 ? `<div class="gallery-thumbs">
+        ${images.map((img,i)=>`<button data-i="${i}" class="${i===0?'active':''}"><img src="${img}"></button>`).join("")}
+      </div>` : ""}
+    </div>
+    <div>
+      <div class="pd-cat">${CAT_LABELS[p.category]||""}</div>
+      <h1 class="pd-title">${p.name}</h1>
+      <div class="pd-price">${formatPrice(p.price)}</div>
+
+      <span class="stock-badge ${p.stock?'in':'out'}">
+        <span class="dot"></span> ${p.stock ? "موجود در انبار" : "ناموجود"}
+      </span>
+
+      <p class="pd-desc">${p.description}</p>
+
+      ${p.sizes && p.sizes.length ? `
+      <div class="option-group">
+        <label class="title">سایز</label>
+        <div class="option-pills" id="sizeOptions">
+          ${p.sizes.map(s=>`<button class="option-pill ${s===selectedSize?'selected':''}" data-size="${s}">${s}</button>`).join("")}
+        </div>
+      </div>`:""}
+
+      ${p.colors && p.colors.length ? `
+      <div class="option-group">
+        <label class="title">رنگ</label>
+        <div class="option-pills" id="colorOptions">
+          ${p.colors.map(c=>`<button class="option-pill ${c===selectedColor?'selected':''}" data-color="${c}">${c}</button>`).join("")}
+        </div>
+      </div>`:""}
+
+      <div class="pd-qty-row">
+        <label class="title" style="margin:0">تعداد</label>
+        <div class="qty-control">
+          <button id="qtyMinus">−</button>
+          <span id="qtyVal">1</span>
+          <button id="qtyPlus">+</button>
+        </div>
+      </div>
+
+      <div class="pd-actions">
+        <button class="btn btn-primary" id="addBtn" ${p.stock? "":"disabled"}>
+          افزودن به سبد خرید
+        </button>
+        <a href="index.html?cat=${p.category}" class="btn btn-outline">مشاهده مشابه</a>
+      </div>
+    </div>
+  </div>`;
+
+  // thumbnails
+  document.querySelectorAll(".gallery-thumbs button").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      activeImgIndex = +btn.dataset.i;
+      document.getElementById("mainImg").src = images[activeImgIndex];
+      document.querySelectorAll(".gallery-thumbs button").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+    });
+  });
+
+  // size / color
+  document.querySelectorAll("#sizeOptions .option-pill").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      selectedSize = btn.dataset.size;
+      document.querySelectorAll("#sizeOptions .option-pill").forEach(b=>b.classList.remove("selected"));
+      btn.classList.add("selected");
+    });
+  });
+  document.querySelectorAll("#colorOptions .option-pill").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      selectedColor = btn.dataset.color;
+      document.querySelectorAll("#colorOptions .option-pill").forEach(b=>b.classList.remove("selected"));
+      btn.classList.add("selected");
+    });
+  });
+
+  // qty
+  let qty = 1;
+  const qtyVal = document.getElementById("qtyVal");
+  document.getElementById("qtyMinus").addEventListener("click", ()=>{
+    qty = Math.max(1, qty-1); qtyVal.textContent = qty;
+  });
+  document.getElementById("qtyPlus").addEventListener("click", ()=>{
+    qty = Math.min(20, qty+1); qtyVal.textContent = qty;
+  });
+
+  // add to cart
+  document.getElementById("addBtn")?.addEventListener("click", ()=>{
+    addToCart(p, qty, selectedSize, selectedColor);
+    openCart();
+  });
+}
+
+(async function init(){
+  const id = getIdFromUrl();
+  const p = id ? await getProductById(id) : null;
+  if(!p){ renderNotFound(); return; }
+  currentProduct = p;
+  renderProduct(p);
+})();
+</script>
+</body>
+</html>

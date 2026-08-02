@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تکمیل خرید | پوشاکچی</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="index.html" class="logo"><span class="dot"></span> پوشاکچی</a>
+    <span style="font-size:13px;color:var(--muted);font-weight:600;">تکمیل فرآیند خرید</span>
+    <a href="index.html" class="icon-btn" aria-label="بازگشت به فروشگاه" title="بازگشت به فروشگاه">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </a>
+  </div>
+</header>
+
+<main class="container">
+
+  <div id="checkoutRoot">
+    <div class="steps" style="margin-top:22px">
+      <div class="step active" id="stepTab1">۱. آدرس گیرنده</div>
+      <div class="step" id="stepTab2">۲. روش ارسال</div>
+      <div class="step" id="stepTab3">۳. پرداخت</div>
+    </div>
+
+    <div class="checkout-wrap">
+      <div>
+        <!-- STEP 1: ADDRESS -->
+        <section class="panel" id="panelAddress">
+          <h3>اطلاعات گیرنده و آدرس</h3>
+          <div class="form-grid">
+            <div class="form-field">
+              <label>نام و نام‌خانوادگی</label>
+              <input type="text" id="fName" placeholder="مثلاً سارا محمدی">
+              <span class="field-error">نام گیرنده را وارد کنید</span>
+            </div>
+            <div class="form-field">
+              <label>شماره موبایل</label>
+              <input type="tel" id="fPhone" placeholder="09xxxxxxxxx" maxlength="11">
+              <span class="field-error">شماره موبایل معتبر وارد کنید</span>
+            </div>
+            <div class="form-field">
+              <label>استان</label>
+              <select id="fProvince"><option value="">انتخاب استان</option></select>
+              <span class="field-error">استان را انتخاب کنید</span>
+            </div>
+            <div class="form-field">
+              <label>شهرستان</label>
+              <select id="fCity"><option value="">ابتدا استان را انتخاب کنید</option></select>
+              <span class="field-error">شهرستان را انتخاب کنید</span>
+            </div>
+            <div class="form-field full">
+              <label>آدرس کامل</label>
+              <textarea id="fAddress" placeholder="خیابان، کوچه، پلاک، واحد"></textarea>
+              <span class="field-error">آدرس کامل را وارد کنید</span>
+            </div>
+            <div class="form-field">
+              <label>کد پستی (اختیاری)</label>
+              <input type="text" id="fPostal" maxlength="10" placeholder="۱۰ رقمی">
+            </div>
+          </div>
+          <div style="text-align:left;margin-top:18px">
+            <button class="btn btn-primary" onclick="goToStep(2)">مرحله بعد: روش ارسال</button>
+          </div>
+        </section>
+
+        <!-- STEP 2: SHIPPING -->
+        <section class="panel" id="panelShipping" style="display:none">
+          <h3>روش ارسال</h3>
+          <div class="ship-options">
+            <label class="option-card" id="shipPishtazCard">
+              <input type="radio" name="shipping" value="pishtaz" onchange="selectShipping('pishtaz')">
+              <div style="flex:1">
+                <div class="ot">پست پیشتاز</div>
+                <div class="os">ارسال به سراسر ایران، ۲ تا ۴ روز کاری</div>
+              </div>
+              <div class="price-tag">۱۷۰,۰۰۰ تومان</div>
+            </label>
+
+            <label class="option-card" id="shipSnappCard">
+              <input type="radio" name="shipping" value="snapp" onchange="selectShipping('snapp')">
+              <div style="flex:1">
+                <div class="ot">پیک اسنپ‌باکس</div>
+                <div class="os">فقط مخصوص شهر زنجان — هزینه ارسال بر عهده‌ی مشتری و در محل به پیک پرداخت می‌شود</div>
+              </div>
+              <div class="price-tag" style="color:var(--muted);font-size:12px">در محل</div>
+            </label>
+          </div>
+          <div class="hint-box" id="snappHint" style="display:none">
+            گزینه‌ی پیک اسنپ‌باکس فقط برای شهر «زنجان» فعال می‌شود. برای فعال شدن این گزینه، شهرستان را در مرحله‌ی قبل «زنجان» انتخاب کنید.
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:18px">
+            <button class="btn btn-outline" onclick="goToStep(1)">مرحله قبل</button>
+            <button class="btn btn-primary" onclick="goToStep(3)">مرحله بعد: پرداخت</button>
+          </div>
+        </section>
+
+        <!-- STEP 3: PAYMENT -->
+        <section class="panel" id="panelPayment" style="display:none">
+          <h3>روش پرداخت</h3>
+          <div class="pay-options">
+            <label class="option-card selected">
+              <input type="radio" name="payment" value="zarinpal" checked>
+              <div style="flex:1">
+                <div class="ot">درگاه پرداخت زرین‌پال</div>
+                <div class="os">پرداخت امن آنلاین از طریق تمام کارت‌های بانکی عضو شتاب</div>
+              </div>
+            </label>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:18px">
+            <button class="btn btn-outline" onclick="goToStep(2)">مرحله قبل</button>
+            <button class="btn btn-primary" id="payBtn" onclick="doPayment()">پرداخت و ثبت نهایی سفارش</button>
+          </div>
+        </section>
+      </div>
+
+      <!-- SUMMARY -->
+      <aside class="summary-card" id="summaryCard">
+        <h3>خلاصه سفارش</h3>
+        <div id="summaryItems"></div>
+        <div class="summary-item"><span>جمع کالاها</span><b id="sumItemsTotal">۰ تومان</b></div>
+        <div class="summary-item"><span>هزینه ارسال</span><b id="sumShip">تعیین نشده</b></div>
+        <div class="summary-total"><span>مبلغ قابل پرداخت</span><span id="sumGrand">۰ تومان</span></div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="result-box" id="resultBox" style="display:none">
+    <div class="icon" id="resultIcon">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+    </div>
+    <h2 id="resultTitle">سفارش شما با موفقیت ثبت شد</h2>
+    <p id="resultText">کد پیگیری سفارش شما به شماره موبایل ثبت‌شده ارسال خواهد شد.</p>
+    <a href="index.html" class="btn btn-primary" id="resultBtn">بازگشت به فروشگاه</a>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/config.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+let selectedShipping = null;
+let cachedProducts = [];
+
+function fillProvinces(){
+  const sel = document.getElementById("fProvince");
+  Object.keys(PROVINCES).forEach(p=>{
+    const opt = document.createElement("option");
+    opt.value = p; opt.textContent = p;
+    sel.appendChild(opt);
+  });
+}
+
+function fillCities(province){
+  const sel = document.getElementById("fCity");
+  sel.innerHTML = "";
+  if(!province){
+    sel.innerHTML = `<option value="">ابتدا استان را انتخاب کنید</option>`;
+    return;
+  }
+  sel.innerHTML = `<option value="">انتخاب شهرستان</option>`;
+  (PROVINCES[province]||[]).forEach(c=>{
+    const opt = document.createElement("option");
+    opt.value = c; opt.textContent = c;
+    sel.appendChild(opt);
+  });
+}
+
+document.getElementById("fProvince").addEventListener("change", (e)=>{
+  fillCities(e.target.value);
+  updateSnappAvailability();
+});
+document.getElementById("fCity").addEventListener("change", updateSnappAvailability);
+
+function updateSnappAvailability(){
+  const city = document.getElementById("fCity").value;
+  const isZanjan = city === "زنجان";
+  const card = document.getElementById("shipSnappCard");
+  const hint = document.getElementById("snappHint");
+  card.classList.toggle("disabled", !isZanjan);
+  card.querySelector("input").disabled = !isZanjan;
+  if(!isZanjan && selectedShipping === "snapp"){
+    selectedShipping = null;
+    card.classList.remove("selected");
+    updateSummary();
+  }
+  hint.style.display = isZanjan ? "none" : "block";
+}
+
+function selectShipping(type){
+  selectedShipping = type;
+  document.getElementById("shipPishtazCard").classList.toggle("selected", type==="pishtaz");
+  document.getElementById("shipSnappCard").classList.toggle("selected", type==="snapp");
+  updateSummary();
+}
+
+function goToStep(n){
+  // validate step 1 before leaving
+  if(n===2){
+    if(!validateAddress()) return;
+  }
+  if(n===3){
+    if(!selectedShipping){
+      showToast("لطفاً روش ارسال را انتخاب کنید");
+      return;
+    }
+  }
+  [1,2,3].forEach(i=>{
+    document.getElementById("panel"+["Address","Shipping","Payment"][i-1]).style.display = i===n ? "block":"none";
+    const tab = document.getElementById("stepTab"+i);
+    tab.classList.remove("active","done");
+    if(i===n) tab.classList.add("active");
+    else if(i<n) tab.classList.add("done");
+  });
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function markInvalid(id, invalid){
+  document.getElementById(id).closest(".form-field").classList.toggle("invalid", invalid);
+}
+
+function validateAddress(){
+  const name = document.getElementById("fName").value.trim();
+  const phone = document.getElementById("fPhone").value.trim();
+  const province = document.getElementById("fProvince").value;
+  const city = document.getElementById("fCity").value;
+  const address = document.getElementById("fAddress").value.trim();
+
+  let ok = true;
+  markInvalid("fName", !name); if(!name) ok=false;
+  const phoneOk = /^09\d{9}$/.test(phone);
+  markInvalid("fPhone", !phoneOk); if(!phoneOk) ok=false;
+  markInvalid("fProvince", !province); if(!province) ok=false;
+  markInvalid("fCity", !city); if(!city) ok=false;
+  markInvalid("fAddress", !address); if(!address) ok=false;
+
+  if(!ok) showToast("لطفاً فیلدهای مشخص‌شده را تکمیل کنید");
+  return ok;
+}
+
+async function updateSummary(){
+  cachedProducts = await reconcileCart(); // کالاهای حذف‌شده را قبل از محاسبه پاک می‌کند
+  const cart = getCart();
+  const itemsWrap = document.getElementById("summaryItems");
+
+  if(cart.length===0){
+    itemsWrap.innerHTML = `<p style="color:var(--muted);font-size:13px">سبد خرید شما خالی است.</p>`;
+    document.getElementById("payBtn").disabled = true;
+  }else{
+    itemsWrap.innerHTML = cart.map(item=>{
+      const p = cachedProducts.find(pp=>pp.id===item.id);
+      if(!p) return "";
+      return `<div class="summary-item"><span>${p.name} × ${item.qty}</span><b>${formatPrice(p.price*item.qty)}</b></div>`;
+    }).join("");
+  }
+
+  const itemsTotal = getCartTotal(cachedProducts, cart);
+  document.getElementById("sumItemsTotal").textContent = formatPrice(itemsTotal);
+
+  let shipText = "تعیین نشده";
+  let shipCost = 0;
+  if(selectedShipping === "pishtaz"){ shipText = formatPrice(170000); shipCost = 170000; }
+  else if(selectedShipping === "snapp"){ shipText = "در محل (بر عهده مشتری)"; shipCost = 0; }
+
+  document.getElementById("sumShip").textContent = shipText;
+  document.getElementById("sumGrand").textContent = formatPrice(itemsTotal + shipCost);
+}
+
+async function doPayment(){
+  await reconcileCart();
+  const cart = getCart();
+  if(cart.length===0){
+    showToast("سبد خرید شما خالی است");
+    return;
+  }
+  const btn = document.getElementById("payBtn");
+  btn.disabled = true;
+  btn.textContent = "در حال اتصال به درگاه زرین‌پال...";
+
+  const payload = {
+    name: document.getElementById("fName").value.trim(),
+    phone: document.getElementById("fPhone").value.trim(),
+    province: document.getElementById("fProvince").value,
+    city: document.getElementById("fCity").value,
+    address: document.getElementById("fAddress").value.trim(),
+    postalCode: document.getElementById("fPostal").value.trim(),
+    shippingMethod: selectedShipping,
+    items: cart.map(i=>({ id:i.id, qty:i.qty, size:i.size, color:i.color }))
+  };
+
+  fetch(`${API_BASE}/api/payment/request`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  })
+  .then(res => res.json())
+  .then(data => {
+    if(!data.ok){
+      showToast(data.error || "خطا در اتصال به درگاه پرداخت");
+      btn.disabled = false;
+      btn.textContent = "پرداخت و ثبت نهایی سفارش";
+      return;
+    }
+    // انتقال به درگاه واقعی زرین‌پال — سبد خرید بعد از تایید نهایی سرور پاک می‌شود
+    location.href = data.paymentUrl;
+  })
+  .catch(()=>{
+    showToast("امکان اتصال به سرور پرداخت وجود ندارد");
+    btn.disabled = false;
+    btn.textContent = "پرداخت و ثبت نهایی سفارش";
+  });
+}
+
+/* ---------- بازگشت از درگاه زرین‌پال ----------
+   زرین‌پال کاربر را به checkout.html?status=success|failed&orderId=...
+   هدایت می‌کند. وضعیتِ واقعی همیشه از سرور (GET /api/order/:id) خوانده
+   می‌شود، نه از روی همین query string که قابل دستکاری است. */
+async function handleReturnFromGateway(){
+  const params = new URLSearchParams(location.search);
+  const status = params.get("status");
+  const orderId = params.get("orderId");
+  if(!status || !orderId) return false;
+
+  document.getElementById("checkoutRoot").style.display = "none";
+  const box = document.getElementById("resultBox");
+  box.style.display = "block";
+
+  try{
+    const res = await fetch(`${API_BASE}/api/order/${orderId}`);
+    const data = await res.json();
+
+    if(data.ok && data.status === "paid"){
+      document.getElementById("resultIcon").classList.remove("fail");
+      document.getElementById("resultTitle").textContent = "سفارش شما با موفقیت ثبت شد";
+      document.getElementById("resultText").textContent =
+        `کد پیگیری: ${data.refId} — مبلغ ${formatPrice(data.total)} با موفقیت پرداخت شد.`;
+      localStorage.removeItem(CART_KEY);
+      updateCartCountBadge();
+    }else{
+      showFailedResult();
+    }
+  }catch(e){
+    showFailedResult();
+  }
+  return true;
+}
+
+function showFailedResult(){
+  document.getElementById("resultIcon").classList.add("fail");
+  document.getElementById("resultIcon").innerHTML =
+    `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>`;
+  document.getElementById("resultTitle").textContent = "پرداخت ناموفق بود";
+  document.getElementById("resultText").textContent = "مبلغی از حساب شما کسر نشده است. می‌توانید دوباره تلاش کنید.";
+  document.getElementById("resultBtn").textContent = "بازگشت و تلاش مجدد";
+  document.getElementById("resultBtn").href = "checkout.html";
+}
+
+fillProvinces();
+updateSnappAvailability();
+updateSummary();
+handleReturnFromGateway();
+</script>
+</body>
+</html>
